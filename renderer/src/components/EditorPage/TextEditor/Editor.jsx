@@ -138,6 +138,8 @@ export default function Editor(props) {
 
     // let innerHtmlRegex = /<\/span>(.*?)<span/gi;
     let innerHtmlRegex = /Abandonner/gi;
+    const re = xre('[\u05c3]'); // hebrew line parsing
+    const regText = xre.match(element.text, re, 'all');
     const matches = htmlPerf?.sequencesHtml[sequenceIds[0]].matchAll(innerHtmlRegex);
 
     console.log("matches ==", matches);
