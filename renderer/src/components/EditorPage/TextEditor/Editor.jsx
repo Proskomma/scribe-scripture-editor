@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useLayoutEffect, useRef,
+  useContext, useEffect, useLayoutEffect, useRef, useState
 } from 'react';
 import { HtmlPerfEditor } from '@xelah/type-perf-html';
 
@@ -15,6 +15,7 @@ import RecursiveBlock from './RecursiveBlock';
 // eslint-disable-next-line import/no-unresolved, import/extensions
 import { useAutoSaveIndication } from '@/hooks2/useAutoSaveIndication';
 import { onIntersection, scrollReference } from './utils/IntersectionObserver';
+import { getDictionnary } from '@/util/getDictionnary';
 
 export default function Editor(props) {
   const {
@@ -56,6 +57,8 @@ export default function Editor(props) {
       setCaretPosition, setSelectedText, setNumberToInsert, setTextToInsert, setInsertType,
     },
   } = useContext(ScribexContext);
+
+  const [dict, setDict] = useState(getDictionnary());
 
   const sequenceId = sequenceIds.at(-1);
   const style = isSaving ? { cursor: 'progress' } : {};
@@ -126,6 +129,28 @@ export default function Editor(props) {
     !scrollLock && scrollReference(chapter, verse);
   }
 
+  function getAWord() {
+    let sequenceIds = htmlPerf ? Object.keys(htmlPerf?.sequencesHtml) : [];
+    let murIndex = htmlPerf?.sequencesHtml[sequenceIds[0]].indexOf('mur');
+    // console.log(dict['ABANDONNER']);
+    console.log('indexof(mur) ==', htmlPerf?.sequencesHtml[sequenceIds[0]].substring(murIndex - 200, murIndex + 200));
+    // console.log('mur ==', htmlPerf?.sequencesHtml[sequenceIds[0]].substring(murIndex, murIndex + 'mur'.length));
+
+    // let innerHtmlRegex = /<\/span>(.*?)<span/gi;
+    let innerHtmlRegex = /Abandonner/gi;
+    const matches = htmlPerf?.sequencesHtml[sequenceIds[0]].matchAll(innerHtmlRegex);
+
+    console.log("matches ==", matches);
+    if (matches && matches.length > 0) {
+      for (const match of matches) {
+        console.log(match);
+        console.log(match.index);
+      }
+    }
+
+    console.log(sequenceIds);
+  }
+
   const observer = new IntersectionObserver((entries) => onIntersection({
     scroll: isScrolling.current, setChapterNumber, scrollLock, entries, setVerseNumber,
   }), {
@@ -150,6 +175,7 @@ export default function Editor(props) {
         htmlPerf, onHtmlPerf: saveHtmlPerf, sequenceIds, addSequenceId, onReferenceSelected, setCaretPosition, setSelectedText, scrollLock, ...__props,
       }),
     },
+    oninput: getAWord(),
     options: {
       sectionable,
       blockable,
@@ -171,6 +197,7 @@ export default function Editor(props) {
         direction: `${projectScriptureDir === 'RTL' ? 'rtl' : 'auto'}`,
       }}
       className="border-l-2 border-r-2 border-secondary pb-16 overflow-auto h-full scrollbars-width leading-8"
+      spellCheck="false"
     >
       <div className="editor" id="editor" style={style}>
         {!bookAvailable && <EmptyScreen />}
