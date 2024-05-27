@@ -89,6 +89,20 @@ export default function Editor(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [htmlPerf]);
 
+  useEffect(() => {
+    let incElems = document.getElementsByClassName('incorrect');
+    console.log("incElems ==", incElems);
+    if (incElems.length > 0) {
+      for (let elem of incElems) {
+        if (elem.getAttribute('listener') !== 'true') {
+          elem.addEventListener('click', function (e) {
+            e.target.setAttribute('listener', 'true');
+          });
+        }
+      };
+    }
+  }, [getAWord]);
+
   useEffect(() => { // temp fix to trigger rerender to cause onblcok trigger to save to file. Need to find a better way.
     if (insertType !== '') {
       insertType === 'insertVerseNumber' || insertType === 'insertChapterNumber'
@@ -129,28 +143,72 @@ export default function Editor(props) {
     !scrollLock && scrollReference(chapter, verse);
   }
 
+  function wrapWord(word) {
+    return "<span class=\"incorrect\">" + word + "</span>";
+  }
+
+  function alreadyWrapped(str) {
+    const re = new RegExp('<span class="incorrect">(.*?)</span>', 'gi');
+    const arr = re.exec(str);
+    if (arr && arr[0]) return true;
+    return false
+  }
+
   function getAWord() {
+    if (!String.prototype.splice) {
+      String.prototype.splice = function (start, delCount, newSubStr) {
+        return this.slice(0, start) + newSubStr + this.slice(start + Math.abs(delCount));
+      };
+    }
+
     let sequenceIds = htmlPerf ? Object.keys(htmlPerf?.sequencesHtml) : [];
-    let murIndex = htmlPerf?.sequencesHtml[sequenceIds[0]].indexOf('mur');
-    // console.log(dict['ABANDONNER']);
-    console.log('indexof(mur) ==', htmlPerf?.sequencesHtml[sequenceIds[0]].substring(murIndex - 200, murIndex + 200));
+
     // console.log('mur ==', htmlPerf?.sequencesHtml[sequenceIds[0]].substring(murIndex, murIndex + 'mur'.length));
 
     // let innerHtmlRegex = /<\/span>(.*?)<span/gi;
-    let innerHtmlRegex = /Abandonner/gi;
-    const re = xre('[\u05c3]'); // hebrew line parsing
-    const regText = xre.match(element.text, re, 'all');
-    const matches = htmlPerf?.sequencesHtml[sequenceIds[0]].matchAll(innerHtmlRegex);
-
-    console.log("matches ==", matches);
-    if (matches && matches.length > 0) {
-      for (const match of matches) {
-        console.log(match);
-        console.log(match.index);
+    const re = new RegExp('</span>(.*?)<span', 'gi');
+    // const matches = string.matchAll(regexp);
+    // const matches = re.exec(htmlPerf?.sequencesHtml[sequenceIds[0]]);
+    let match;
+    let newWord, fullMatch;
+    let matches = [];
+    let tempIndexof = -1;
+    let indexInHtmlPerf;
+    let oneMatch;
+    let fullCopyHtml = htmlPerf?.sequencesHtml[sequenceIds[0]];
+    while (match = re.exec(htmlPerf?.sequencesHtml[sequenceIds[0]])) {
+      newWord = match[0];
+      indexInHtmlPerf = match.index;
+      tempIndexof = newWord.search('\\bmur\\b');
+      if (tempIndexof != -1) {
+        console.log("match", match.index, "==", match);
+        newWord = match[0].substring(tempIndexof, tempIndexof + 'mur'.length);
+        fullMatch = match[0].substring(tempIndexof - 25, tempIndexof + 'mur'.length + 5);
+        if (!alreadyWrapped(fullMatch) && htmlPerf != undefined) {
+          console.log('indexInHtmlPerf, indexInHtmlPerf + \'mur\'.length ==', indexInHtmlPerf, indexInHtmlPerf + 'mur'.length);
+          console.log('slice BEFORE ==', fullCopyHtml.slice(indexInHtmlPerf - 200, indexInHtmlPerf + 'mur'.length + 200));
+          console.log('real slice ==', fullCopyHtml.slice(indexInHtmlPerf + tempIndexof, indexInHtmlPerf + tempIndexof + 'mur'.length));
+          fullCopyHtml = fullCopyHtml.slice(0, indexInHtmlPerf + tempIndexof) + wrapWord(newWord) + fullCopyHtml.slice(indexInHtmlPerf + tempIndexof + 'mur'.length);
+          console.log('slice AFTER ==', fullCopyHtml.slice(indexInHtmlPerf - 100, indexInHtmlPerf + 'mur'.length + 100));
+          matches.push(newWord);
+          htmlPerf.sequencesHtml[sequenceIds[0]] = fullCopyHtml;
+          oneMatch = indexInHtmlPerf;
+        }
       }
     }
 
+    // let murIndex = htmlPerf?.sequencesHtml[sequenceIds[0]].indexOf('mur');
+    // console.log(dict['ABANDONNER']);
+    // console.log('indexof(mur) ==', htmlPerf?.sequencesHtml[sequenceIds[0]].substring(murIndex, murIndex + 3));
+    // array.map(m => m[1]);
+    // const array = [...matches];
+
+    // console.log("matches ==", array.map(m => m[1]));
+    console.log("matches ==", matches);
+
     console.log(sequenceIds);
+    console.log('slice htmlPerf ==', htmlPerf?.sequencesHtml[sequenceIds[0]].slice(oneMatch - 100, oneMatch + 'mur'.length + 100));
+
   }
 
   const observer = new IntersectionObserver((entries) => onIntersection({
