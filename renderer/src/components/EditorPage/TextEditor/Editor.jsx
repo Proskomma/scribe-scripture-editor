@@ -59,6 +59,9 @@ export default function Editor(props) {
   } = useContext(ScribexContext);
 
   const [dict, setDict] = useState(getDictionnary());
+  const [decorators, setDecorators] = useState({
+    embededHtml: [/<\/span>\\b(.*?)\\b<span/gi, "<span class=\"incorrect\">$1</span>"],
+  });
 
   const sequenceId = sequenceIds.at(-1);
   const style = isSaving ? { cursor: 'progress' } : {};
@@ -92,6 +95,7 @@ export default function Editor(props) {
   useEffect(() => {
     let incElems = document.getElementsByClassName('incorrect');
     console.log("incElems ==", incElems);
+    console.log("decorators ==", decorators);
     if (incElems.length > 0) {
       for (let elem of incElems) {
         if (elem.getAttribute('listener') !== 'true') {
@@ -101,7 +105,7 @@ export default function Editor(props) {
         }
       };
     }
-  }, [getAWord]);
+  }, [htmlPerf]);
 
   useEffect(() => { // temp fix to trigger rerender to cause onblcok trigger to save to file. Need to find a better way.
     if (insertType !== '') {
@@ -166,36 +170,42 @@ export default function Editor(props) {
     // console.log('mur ==', htmlPerf?.sequencesHtml[sequenceIds[0]].substring(murIndex, murIndex + 'mur'.length));
 
     // let innerHtmlRegex = /<\/span>(.*?)<span/gi;
-    const re = new RegExp('</span>(.*?)<span', 'gi');
+    // const re = new RegExp('</span>(.*?)<span', 'gi');
+    // const decorators = {
+    //   embededHtml: [/<\/span>\\b(.*?)\\b<span/gi, "<span class=\"incorrect\">$1</span>"],
+    // }
+    setDecorators({
+      embededHtml: [/<\/span>\\b(.*?)\\b<span/gi, "<span class=\"incorrect\">$1</span>"],
+    });
     // const matches = string.matchAll(regexp);
     // const matches = re.exec(htmlPerf?.sequencesHtml[sequenceIds[0]]);
-    let match;
-    let newWord, fullMatch;
-    let matches = [];
-    let tempIndexof = -1;
-    let indexInHtmlPerf;
-    let oneMatch;
-    let fullCopyHtml = htmlPerf?.sequencesHtml[sequenceIds[0]];
-    while (match = re.exec(htmlPerf?.sequencesHtml[sequenceIds[0]])) {
-      newWord = match[0];
-      indexInHtmlPerf = match.index;
-      tempIndexof = newWord.search('\\bmur\\b');
-      if (tempIndexof != -1) {
-        console.log("match", match.index, "==", match);
-        newWord = match[0].substring(tempIndexof, tempIndexof + 'mur'.length);
-        fullMatch = match[0].substring(tempIndexof - 25, tempIndexof + 'mur'.length + 5);
-        if (!alreadyWrapped(fullMatch) && htmlPerf != undefined) {
-          console.log('indexInHtmlPerf, indexInHtmlPerf + \'mur\'.length ==', indexInHtmlPerf, indexInHtmlPerf + 'mur'.length);
-          console.log('slice BEFORE ==', fullCopyHtml.slice(indexInHtmlPerf - 200, indexInHtmlPerf + 'mur'.length + 200));
-          console.log('real slice ==', fullCopyHtml.slice(indexInHtmlPerf + tempIndexof, indexInHtmlPerf + tempIndexof + 'mur'.length));
-          fullCopyHtml = fullCopyHtml.slice(0, indexInHtmlPerf + tempIndexof) + wrapWord(newWord) + fullCopyHtml.slice(indexInHtmlPerf + tempIndexof + 'mur'.length);
-          console.log('slice AFTER ==', fullCopyHtml.slice(indexInHtmlPerf - 100, indexInHtmlPerf + 'mur'.length + 100));
-          matches.push(newWord);
-          htmlPerf.sequencesHtml[sequenceIds[0]] = fullCopyHtml;
-          oneMatch = indexInHtmlPerf;
-        }
-      }
-    }
+    // let match;
+    // let newWord, fullMatch;
+    // let matches = [];
+    // let tempIndexof = -1;
+    // let indexInHtmlPerf;
+    // let oneMatch;
+    // let fullCopyHtml = htmlPerf?.sequencesHtml[sequenceIds[0]];
+    // while (match = re.exec(htmlPerf?.sequencesHtml[sequenceIds[0]])) {
+    //   newWord = match[0];
+    //   indexInHtmlPerf = match.index;
+    //   tempIndexof = newWord.search('\\bmur\\b');
+    //   if (tempIndexof != -1) {
+    //     console.log("match", match.index, "==", match);
+    //     newWord = match[0].substring(tempIndexof, tempIndexof + 'mur'.length);
+    //     fullMatch = match[0].substring(tempIndexof - 25, tempIndexof + 'mur'.length + 5);
+    //     if (!alreadyWrapped(fullMatch) && htmlPerf != undefined) {
+    //       console.log('indexInHtmlPerf, indexInHtmlPerf + \'mur\'.length ==', indexInHtmlPerf, indexInHtmlPerf + 'mur'.length);
+    //       console.log('slice BEFORE ==', fullCopyHtml.slice(indexInHtmlPerf - 200, indexInHtmlPerf + 'mur'.length + 200));
+    //       console.log('real slice ==', fullCopyHtml.slice(indexInHtmlPerf + tempIndexof, indexInHtmlPerf + tempIndexof + 'mur'.length));
+    //       fullCopyHtml = fullCopyHtml.slice(0, indexInHtmlPerf + tempIndexof) + wrapWord(newWord) + fullCopyHtml.slice(indexInHtmlPerf + tempIndexof + 'mur'.length);
+    //       console.log('slice AFTER ==', fullCopyHtml.slice(indexInHtmlPerf - 100, indexInHtmlPerf + 'mur'.length + 100));
+    //       matches.push(newWord);
+    //       htmlPerf.sequencesHtml[sequenceIds[0]] = fullCopyHtml;
+    //       oneMatch = indexInHtmlPerf;
+    //     }
+    //   }
+    // }
 
     // let murIndex = htmlPerf?.sequencesHtml[sequenceIds[0]].indexOf('mur');
     // console.log(dict['ABANDONNER']);
@@ -204,10 +214,10 @@ export default function Editor(props) {
     // const array = [...matches];
 
     // console.log("matches ==", array.map(m => m[1]));
-    console.log("matches ==", matches);
+    // console.log("matches ==", matches);
 
-    console.log(sequenceIds);
-    console.log('slice htmlPerf ==', htmlPerf?.sequencesHtml[sequenceIds[0]].slice(oneMatch - 100, oneMatch + 'mur'.length + 100));
+    // console.log(sequenceIds);
+    // console.log('slice htmlPerf ==', htmlPerf?.sequencesHtml[sequenceIds[0]].slice(oneMatch - 100, oneMatch + 'mur'.length + 100));
 
   }
 
@@ -235,14 +245,14 @@ export default function Editor(props) {
         htmlPerf, onHtmlPerf: saveHtmlPerf, sequenceIds, addSequenceId, onReferenceSelected, setCaretPosition, setSelectedText, scrollLock, ...__props,
       }),
     },
-    oninput: getAWord(),
+    // oninput: getAWord(),
     options: {
       sectionable,
       blockable,
       editable,
       preview,
     },
-    decorators: {},
+    decorators,
     verbose,
     handlers,
   };
