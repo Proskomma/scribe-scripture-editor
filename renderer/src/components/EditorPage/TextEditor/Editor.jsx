@@ -16,6 +16,7 @@ import RecursiveBlock from './RecursiveBlock';
 import { useAutoSaveIndication } from '@/hooks2/useAutoSaveIndication';
 import { onIntersection, scrollReference } from './utils/IntersectionObserver';
 import { getDictionnary } from '@/util/getDictionnary';
+import xre from 'xregexp';
 
 export default function Editor(props) {
   const {
@@ -171,16 +172,45 @@ export default function Editor(props) {
 
     // let innerHtmlRegex = /<\/span>(.*?)<span/gi;
     // const re = new RegExp('</span>(.*?)<span', 'gi');
+    // const re = xre('</span>(.*?)<span');
+    const tabTemp = ["hello", "oui", "non"];
+    const re = xre(`(?<!<[^>]*)(\\b(?!${tabTemp.join('\\b|')}\\b)(?!\\d+)\\w+\\b)`, 'gui');
+    const emptySpans = xre(/<span class="incorrect">\s*(?:(?:&amp;|&nbsp;)\s*)*<\/span>/gi);
+    if (htmlPerf != undefined) {
+      const words = xre.match(htmlPerf.sequencesHtml[sequenceIds[0]], re, "all");
+      // const words = xre.match(inSpans.join(' '), reWords, "all").filter((e) => e != "span");
+      console.log("words", words);
+      // console.log(htmlPerf.sequencesHtml[sequenceIds[0]]);
+
+      // console.log("inSpans", inSpans);
+      let ret = xre.replace(htmlPerf.sequencesHtml[sequenceIds[0]], re, "<span class=\"incorrect\">$1</span>");
+      let cleanedRet = xre.replace(ret, emptySpans, "");
+      // console.log('ret ==', ret);
+      // let tempIndexof = htmlPerf.sequencesHtml[sequenceIds[0]].search('incorrect');
+      htmlPerf.sequencesHtml[sequenceIds[0]] = cleanedRet;
+      // let fullMatch = htmlPerf.sequencesHtml[sequenceIds[0]].substring(tempIndexof - 100, tempIndexof + 100);
+      // console.log('fullMatch ==', fullMatch);
+      // htmlPerf.sequencesHtml[sequenceIds[0]].replaceAll(re,)
+      // let match, result = [];
+      // while (match = xre.exec(htmlPerf.sequencesHtml[sequenceIds[0]], re), 0, 'sticky') {
+      //   console.log('curr match ==', match);
+      //   break;
+      //   // result.push(match[1]);
+      //   // pos = match.index + match[0].length;
+      // }
+      // console.log(result);
+    }
+
+
     // const decorators = {
     //   embededHtml: [/<\/span>\\b(.*?)\\b<span/gi, "<span class=\"incorrect\">$1</span>"],
     // }
-    setDecorators({
-      embededHtml: [/<\/span>\\b(.*?)\\b<span/gi, "<span class=\"incorrect\">$1</span>"],
-    });
+    // setDecorators({
+    //   embededHtml: [/<\/span>.*?(.*?).*?<span/gi, "<span class=\"incorrect\">$1</span>"],
+    // });
     // const matches = string.matchAll(regexp);
     // const matches = re.exec(htmlPerf?.sequencesHtml[sequenceIds[0]]);
-    // let match;
-    // let newWord, fullMatch;
+    // let newWord, fullMatch, match;
     // let matches = [];
     // let tempIndexof = -1;
     // let indexInHtmlPerf;
@@ -245,14 +275,14 @@ export default function Editor(props) {
         htmlPerf, onHtmlPerf: saveHtmlPerf, sequenceIds, addSequenceId, onReferenceSelected, setCaretPosition, setSelectedText, scrollLock, ...__props,
       }),
     },
-    // oninput: getAWord(),
+    oninput: getAWord(),
     options: {
       sectionable,
       blockable,
       editable,
       preview,
     },
-    decorators,
+    decorators: {},
     verbose,
     handlers,
   };
