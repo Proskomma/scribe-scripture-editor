@@ -1,3 +1,7 @@
+/**
+ * 
+ * @returns {Array} the dict of words
+ */
 export const getDictionnary = () => {
   const path = require('path');
   const fs = window.require('fs');
@@ -7,9 +11,9 @@ export const getDictionnary = () => {
   const data = fs.readFileSync(dictPath).toString();
 
   var lines = data.split('\n');
-  let mydict = {};
+  let mydict = ["amp", "nbsp"];
   for(let line of lines) {
-    mydict[line] = 'test';
+    mydict.push(line);
   }
   return mydict;
   // console.log(lines[1]);

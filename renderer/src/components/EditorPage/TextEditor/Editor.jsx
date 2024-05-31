@@ -173,21 +173,19 @@ export default function Editor(props) {
     // let innerHtmlRegex = /<\/span>(.*?)<span/gi;
     // const re = new RegExp('</span>(.*?)<span', 'gi');
     // const re = xre('</span>(.*?)<span');
-    const tabTemp = ["hello", "oui", "non"];
-    const re = xre(`(?<!<[^>]*)(\\b(?!${tabTemp.join('\\b|')}\\b)(?!\\d+)\\w+\\b)`, 'gui');
-    const emptySpans = xre(/<span class="incorrect">\s*(?:(?:&amp;|&nbsp;)\s*)*<\/span>/gi);
-    if (htmlPerf != undefined) {
+    const tabTemp = ["hello", "oui", "non", "nbsp", "amp"];
+    if (htmlPerf != undefined && dict != undefined) {
+      console.log("dict[1000]==", dict[1000]);
+      const re = xre(`(?<!<[^>]*)(\\b(?!${dict.slice(0, 2000).join('\\b|')}\\b)(?!\\d+)\\w+\\b)`, 'gui');
+      const emptySpans = xre(/<span class="incorrect">\s*<\/span>/gui);
       const words = xre.match(htmlPerf.sequencesHtml[sequenceIds[0]], re, "all");
-      // const words = xre.match(inSpans.join(' '), reWords, "all").filter((e) => e != "span");
-      console.log("words", words);
-      // console.log(htmlPerf.sequencesHtml[sequenceIds[0]]);
 
       // console.log("inSpans", inSpans);
+      // let cleanedRet = xre.replace(htmlPerf.sequencesHtml[sequenceIds[0]], emptySpans, "");
       let ret = xre.replace(htmlPerf.sequencesHtml[sequenceIds[0]], re, "<span class=\"incorrect\">$1</span>");
-      let cleanedRet = xre.replace(ret, emptySpans, "");
       // console.log('ret ==', ret);
       // let tempIndexof = htmlPerf.sequencesHtml[sequenceIds[0]].search('incorrect');
-      htmlPerf.sequencesHtml[sequenceIds[0]] = cleanedRet;
+      htmlPerf.sequencesHtml[sequenceIds[0]] = ret;
       // let fullMatch = htmlPerf.sequencesHtml[sequenceIds[0]].substring(tempIndexof - 100, tempIndexof + 100);
       // console.log('fullMatch ==', fullMatch);
       // htmlPerf.sequencesHtml[sequenceIds[0]].replaceAll(re,)
