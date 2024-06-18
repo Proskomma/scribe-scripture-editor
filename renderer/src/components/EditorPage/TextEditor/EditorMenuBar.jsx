@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 
 import { ProjectContext } from '@/components/context/ProjectContext';
 import MenuDropdown from '@/components/MenuDropdown/MenuDropdown';
-import { LockClosedIcon, BookmarkIcon, LockOpenIcon } from '@heroicons/react/24/outline';
+import { LockClosedIcon, BookmarkIcon, LockOpenIcon, Cog8ToothIcon } from '@heroicons/react/24/outline';
 // import BibleNavigationX from '@/components/EditorPage/TextEditor/BibleNavigationX';
 import BibleNavigationX from './BibleNavigationX';
 import Buttons from './Buttons';
@@ -17,6 +17,7 @@ export default function EditorMenuBar(props) {
     setVerseNumber,
     handleSelectedFont,
     setTriggerVerseInsert,
+    checks,
   } = props;
 
   const {
@@ -69,6 +70,19 @@ export default function EditorMenuBar(props) {
             <BookmarkIcon
               className="h-5 mr-4 w-5 text-white cursor-pointer"
               aria-hidden="true"
+            />
+          </div>
+        </div>
+        <div
+          title="Launch checks"
+          className="flex items-center mr-auto"
+        >
+          <div>
+            <Cog8ToothIcon
+              aria-label="close-lock"
+              className="h-5 mr-3 w-5 text-white cursor-pointer"
+              aria-hidden="true"
+              onClick={() => checks()}
             />
           </div>
         </div>

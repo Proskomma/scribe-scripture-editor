@@ -12,6 +12,7 @@ import htmlMap from './hooks/htmlmap';
 import usePerf from './hooks/usePerf';
 import EditorMenuBar from './EditorMenuBar';
 import Editor from './Editor';
+import { PipelineHandler, pipelines } from 'proskomma-json-tools';
 
 export default function TextEditor() {
   const { state, actions } = useContext(ScribexContext);
@@ -59,7 +60,7 @@ export default function TextEditor() {
   useEffect(() => {
     onChangeChapter(chapterNumber, 1);
     onChangeVerse(verseNumber, 1);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapterNumber, verseNumber]);
 
   const { catalog } = useCatalog({ proskomma, stateId, verbose });
@@ -89,6 +90,37 @@ export default function TextEditor() {
     }
   }, [htmlPerf, state.sequenceIds, perfState]);
 
+  const checks = async () => {
+    const fse = window.require('fs-extra');
+    const path = window.require('path');
+    const checker = window.require('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/index.js');
+
+    const usfmContent = { usfm: "\\id MRK" };
+    const spec = fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/specs/ks.json');
+
+    if (perfActions && htmlPerf) {
+      // const perfContent = { perf: fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/MARK_titus_aligned_eng.json') };
+      const perfContent = await perfActions.getPerf();
+
+      let ret = checker({ content: { perf: perfContent }, spec, contentType: "perf" });
+      // const { PipelineHandler } = require('proskomma-json-tools');
+      // if (perfState.usfmText) {
+      //   const pipelineH = new PipelineHandler(pipelines);
+      //   console.log(pipelineH.listPipelinesNames());
+      //   console.log("type of perfState.usfmText ==", perfState.usfmText);
+
+      //   let output = await pipelineH.runPipeline("usfmToPerfPipeline", {
+      //     usfm: perfState.usfmText,
+      //     selectors: { "lang": "fra", "abbr": "fraLSG" }
+      //   });
+      console.log(ret[0].issues);
+    }
+    // }
+
+
+    // console.log("usfmText ==",);
+  }
+
   const _props = {
     ...state,
     ...perfState,
@@ -107,6 +139,7 @@ export default function TextEditor() {
     handleSelectedFont,
     triggerVerseInsert,
     setTriggerVerseInsert,
+    checks
   };
   return (
     <>

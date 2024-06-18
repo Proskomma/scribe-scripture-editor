@@ -59,10 +59,10 @@ export default function Editor(props) {
     },
   } = useContext(ScribexContext);
 
-  const [dict, setDict] = useState(getDictionnary());
-  const [decorators, setDecorators] = useState({
-    embededHtml: [/<\/span>\\b(.*?)\\b<span/gi, "<span class=\"incorrect\">$1</span>"],
-  });
+  // const [dict, setDict] = useState(getDictionnary());
+  // const [decorators, setDecorators] = useState({
+  //   embededHtml: [/<\/span>\\b(.*?)\\b<span/gi, "<span class=\"incorrect\">$1</span>"],
+  // });
 
   const sequenceId = sequenceIds.at(-1);
   const style = isSaving ? { cursor: 'progress' } : {};
@@ -93,20 +93,20 @@ export default function Editor(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [htmlPerf]);
 
-  useEffect(() => {
-    let incElems = document.getElementsByClassName('incorrect');
-    console.log("incElems ==", incElems);
-    console.log("decorators ==", decorators);
-    if (incElems.length > 0) {
-      for (let elem of incElems) {
-        if (elem.getAttribute('listener') !== 'true') {
-          elem.addEventListener('click', function (e) {
-            e.target.setAttribute('listener', 'true');
-          });
-        }
-      };
-    }
-  }, [htmlPerf]);
+  // useEffect(() => {
+  //   let incElems = document.getElementsByClassName('incorrect');
+  //   console.log("incElems ==", incElems);
+  //   console.log("decorators ==", decorators);
+  //   if (incElems.length > 0) {
+  //     for (let elem of incElems) {
+  //       if (elem.getAttribute('listener') !== 'true') {
+  //         elem.addEventListener('click', function (e) {
+  //           e.target.setAttribute('listener', 'true');
+  //         });
+  //       }
+  //     };
+  //   }
+  // }, [htmlPerf]);
 
   useEffect(() => { // temp fix to trigger rerender to cause onblcok trigger to save to file. Need to find a better way.
     if (insertType !== '') {
@@ -273,7 +273,6 @@ export default function Editor(props) {
         htmlPerf, onHtmlPerf: saveHtmlPerf, sequenceIds, addSequenceId, onReferenceSelected, setCaretPosition, setSelectedText, scrollLock, ...__props,
       }),
     },
-    oninput: getAWord(),
     options: {
       sectionable,
       blockable,
