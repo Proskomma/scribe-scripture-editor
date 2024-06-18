@@ -12,6 +12,7 @@ import htmlMap from './hooks/htmlmap';
 import usePerf from './hooks/usePerf';
 import EditorMenuBar from './EditorMenuBar';
 import Editor from './Editor';
+import ChecksPopup from './ChecksPopup';
 import { PipelineHandler, pipelines } from 'proskomma-json-tools';
 
 export default function TextEditor() {
@@ -19,6 +20,7 @@ export default function TextEditor() {
   const { verbose } = state;
   // const { usfmData, bookAvailable } = props;
   const [selectedBook, setSelectedBook] = useState();
+  const [openChecksPopup, setOpenChecksPopup] = useState(false);
   const [bookChange, setBookChange] = useState(false);
   const [chapterNumber, setChapterNumber] = useState(1);
   const [verseNumber, setVerseNumber] = useState(1);
@@ -113,6 +115,7 @@ export default function TextEditor() {
       //     usfm: perfState.usfmText,
       //     selectors: { "lang": "fra", "abbr": "fraLSG" }
       //   });
+      setOpenChecksPopup(true);
       console.log(ret[0].issues);
     }
     // }
@@ -152,6 +155,7 @@ export default function TextEditor() {
         <EditorMenuBar {..._props} />
         <Editor {..._props} />
       </div>
+      <ChecksPopup openChecksPopup={openChecksPopup} setOpenChecksPopup={setOpenChecksPopup} />
     </>
   );
 }
