@@ -25,6 +25,7 @@ export default function TextEditor() {
   const [chapterNumber, setChapterNumber] = useState(1);
   const [verseNumber, setVerseNumber] = useState(1);
   const [triggerVerseInsert, setTriggerVerseInsert] = useState(false);
+  const [contentPopUp, setContentPopUp] = useState({});
   // const [newVerChapNumber, setInsertNumber] = useState('');
   // const [insertVerseRChapter, setInsertVerseRChapter] = useState('');
 
@@ -115,6 +116,7 @@ export default function TextEditor() {
       //     usfm: perfState.usfmText,
       //     selectors: { "lang": "fra", "abbr": "fraLSG" }
       //   });
+      setContentPopUp(ret[0].issues);
       setOpenChecksPopup(true);
       console.log(ret[0].issues);
     }
@@ -155,7 +157,7 @@ export default function TextEditor() {
         <EditorMenuBar {..._props} />
         <Editor {..._props} />
       </div>
-      <ChecksPopup openChecksPopup={openChecksPopup} setOpenChecksPopup={setOpenChecksPopup} />
+      <ChecksPopup openChecksPopup={openChecksPopup} setOpenChecksPopup={setOpenChecksPopup} content={contentPopUp} />
     </>
   );
 }
