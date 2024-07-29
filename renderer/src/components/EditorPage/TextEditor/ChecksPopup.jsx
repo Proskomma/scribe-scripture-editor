@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useRef, useState, useContext, Fragment } from 'react';
+import React, { useEffect, useRef, useState, useContext, Fragment } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { Dialog, Transition } from '@headlessui/react';
 import { SnackBar } from '@/components/SnackBar';
@@ -16,26 +16,64 @@ export default function ChecksPopup({
 	// const [groupedData, setGroupedData] = useRef({});
 	const [openSnackBar, setOpenSnackBar] = useState(false);
 	const [snackText, setSnackText] = useState('');
+	const [groupedData, setGroupedData] = useState({});
 	const [error, setError] = useState('');
 
 	const removeSection = () => {
 		setOpenChecksPopup(false);
 	};
 
-	const handleSelect = () => {
-		console.log('Hello !');
-	};
-
 	const isArray = Array.isArray(content);
 
-	const groupedData = isArray ? content?.reduce((acc, curr) => {
-		if (!acc[curr.name]) {
-			acc[curr.name] = [];
-		}
-		acc[curr.name].push(curr);
+	// const groupedData = isArray ? content?.reduce((acc, curr) => {
+	// 	if (!acc[curr.name]) {
+	// 		acc[curr.name] = [];
+	// 	}
+	// 	acc[curr.name].push(curr);
 
-		return acc;
-	}, {}) : [];
+	// 	console.log("acc ==", acc);
+	// 	return acc;
+	// }, {}) : [];
+
+	useEffect(() => {
+		if (isArray) {
+			let tmpGroupedData = {};
+			for (let check of content) {
+				console.log("check==", check);
+				if (check.issues.length > 0) {
+					// tmpGroupedData[check.qName] = check.issues.reduce((acc, curr) => {
+					// 	if (!acc[curr.name]) {
+					// 		acc[curr.name] = [];
+					// 	}
+					// 	acc[curr.name].push(curr);
+					// 	return acc;
+					// }, {});
+					tmpGroupedData[check.qName] = check.issues
+				}
+			}
+			console.log("tmpGroupedData==", tmpGroupedData);
+			setGroupedData(tmpGroupedData);
+		}
+	}, [content]);
+
+	// const groupedData = () => {
+	// 	let group = {};
+	// 	if (isArray) {
+	// 		content.forEach(test => {
+	// 			test.issues.reduce((acc, curr) => {
+	// 				if (!acc[curr.name]) {
+	// 					acc[curr.name] = [];
+	// 				}
+	// 				acc[curr.name].push(curr);
+
+	// 				return acc;
+	// 			}, {});
+	// 		});
+	// 		console.log("content ==", content);
+	// 	} else {
+	// 		return [];
+	// 	}
+	// }
 
 	return (
 		<>

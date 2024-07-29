@@ -14,6 +14,7 @@ import EditorMenuBar from './EditorMenuBar';
 import Editor from './Editor';
 import ChecksPopup from './ChecksPopup';
 import { PipelineHandler, pipelines } from 'proskomma-json-tools';
+import checker from 'perf-checks';
 
 export default function TextEditor() {
   const { state, actions } = useContext(ScribexContext);
@@ -96,10 +97,10 @@ export default function TextEditor() {
   const checks = async () => {
     const fse = window.require('fs-extra');
     const path = window.require('path');
-    const checker = window.require('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/index.js');
+    // const checker = window.require('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/index.js');
 
     const usfmContent = { usfm: "\\id MRK" };
-    const spec = fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/specs/ks.json');
+    const spec = fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/ks.json');
 
     if (perfActions && htmlPerf) {
       // const perfContent = { perf: fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/MARK_titus_aligned_eng.json') };
@@ -116,9 +117,9 @@ export default function TextEditor() {
       //     usfm: perfState.usfmText,
       //     selectors: { "lang": "fra", "abbr": "fraLSG" }
       //   });
-      setContentPopUp(ret[0].issues);
+      setContentPopUp(ret);
       setOpenChecksPopup(true);
-      console.log(ret[0].issues);
+      console.log(ret);
     }
     // }
 
