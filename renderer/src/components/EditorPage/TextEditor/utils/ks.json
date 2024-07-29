@@ -1,0 +1,55 @@
+{
+  "name": "Kitchen Sink Checks",
+  "description": "All the non-stupid checks",
+  "checks": [
+    {
+      "name": "versestats::verse_stats",
+      "description": "Checks for empty, short and long verses",
+      "level": "minor",
+      "contentType": "perf",
+      "children": []
+    },
+    {
+      "name": "chapterverse::duplicate_chapters",
+      "description": "Checks for duplicate chapter numbers",
+      "level": "major",
+      "contentType": "perf",
+      "children": []
+    },
+    {
+      "name": "chapterverse::duplicate_verses",
+      "description": "Checks for duplicate verse numbers",
+      "level": "major",
+      "contentType": "perf",
+      "children": []
+    },
+    {
+      "name": "chapterverse::missing_chapters",
+      "description": "Checks for missing chapter numbers",
+      "level": "minor",
+      "contentType": "perf",
+      "children": []
+    },
+    {
+      "name": "chapterverse::missing_verses",
+      "description": "Checks for missing verse numbers within chapters",
+      "level": "major",
+      "contentType": "perf",
+      "children": []
+    },
+    {
+      "name": "chapterverse::out_of_order_chapters",
+      "description": "Checks for out-of-order chapter numbers within chapters",
+      "level": "major",
+      "contentType": "perf",
+      "children": []
+    },
+    {
+      "name": "chapterverse::out_of_order_verses",
+      "description": "Checks for out_of_order verse numbers within chapters",
+      "level": "major",
+      "contentType": "perf",
+      "children": []
+    }
+  ]
+}
