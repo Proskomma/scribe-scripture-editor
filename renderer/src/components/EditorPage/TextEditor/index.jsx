@@ -19,7 +19,6 @@ import checker from 'perf-checks';
 export default function TextEditor() {
   const { state, actions } = useContext(ScribexContext);
   const { verbose } = state;
-  // const { usfmData, bookAvailable } = props;
   const [selectedBook, setSelectedBook] = useState();
   const [openChecksPopup, setOpenChecksPopup] = useState(false);
   const [bookChange, setBookChange] = useState(false);
@@ -33,8 +32,10 @@ export default function TextEditor() {
   const { usfmData, bookAvailable } = useReadUsfmFile();
 
   const {
-    state: { bookId, selectedFont },
-    actions: { handleSelectedFont, onChangeChapter, onChangeVerse },
+    state: { bookId, selectedFont, editorFontSize },
+    actions: {
+      handleSelectedFont, onChangeChapter, onChangeVerse, handleEditorFontSize,
+    },
   } = useContext(ReferenceContext);
 
   const {
@@ -132,6 +133,7 @@ export default function TextEditor() {
     ...perfState,
     ...actions,
     ...perfActions,
+    editorFontSize,
     selectedFont,
     chapterNumber,
     verseNumber,
@@ -139,6 +141,7 @@ export default function TextEditor() {
     bookName,
     bookChange,
     bookAvailable,
+    handleEditorFontSize,
     setBookChange,
     setChapterNumber,
     setVerseNumber,
