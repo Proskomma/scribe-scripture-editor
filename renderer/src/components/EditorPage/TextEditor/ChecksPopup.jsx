@@ -25,33 +25,17 @@ export default function ChecksPopup({
 
 	const isArray = Array.isArray(content);
 
-	// const groupedData = isArray ? content?.reduce((acc, curr) => {
-	// 	if (!acc[curr.name]) {
-	// 		acc[curr.name] = [];
-	// 	}
-	// 	acc[curr.name].push(curr);
-
-	// 	console.log("acc ==", acc);
-	// 	return acc;
-	// }, {}) : [];
 
 	useEffect(() => {
 		if (isArray) {
 			let tmpGroupedData = {};
+			console.log(content);
 			for (let check of content) {
 				console.log("check==", check);
 				if (check.issues.length > 0) {
-					// tmpGroupedData[check.qName] = check.issues.reduce((acc, curr) => {
-					// 	if (!acc[curr.name]) {
-					// 		acc[curr.name] = [];
-					// 	}
-					// 	acc[curr.name].push(curr);
-					// 	return acc;
-					// }, {});
 					tmpGroupedData[check.qName] = check.issues
 				}
 			}
-			console.log("tmpGroupedData==", tmpGroupedData);
 			setGroupedData(tmpGroupedData);
 		}
 	}, [content]);
