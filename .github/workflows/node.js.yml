@@ -5,7 +5,7 @@ name: Node.js CI
 
 on:
     push:
-        branches: [development]
+        branches: [test_node_20]
 
 jobs:
     build:
@@ -14,14 +14,14 @@ jobs:
             CI: false
         strategy:
             matrix:
-                node-version: [18.20.3]
+                node-version: [20.0.9]
 
         steps:
             - uses: actions/checkout@v2
-            - name: Use Node.js 18.20.3
+            - name: Use Node.js 20.0.9
               uses: actions/setup-node@v1
               with:
-                  node-version: 18.20.3
+                  node-version: 20.0.9
             - run: |
                   node --version
                   yarn --version
@@ -55,14 +55,14 @@ jobs:
             CI: false
         strategy:
             matrix:
-                node-version: [18.20.3]
+                node-version: [20.0.9]
 
         steps:
             - uses: actions/checkout@v2
-            - name: Use Node.js 18.20.3
+            - name: Use Node.js 20.0.9
               uses: actions/setup-node@v1
               with:
-                  node-version: 18.20.3
+                  node-version: 20.0.9
             - run: |
                   node --version
                   yarn --version
@@ -102,14 +102,14 @@ jobs:
             CI: false
         strategy:
             matrix:
-                node-version: [18.20.3]
+                node-version: [20.0.9]
 
         steps:
             - uses: actions/checkout@v2
-            - name: Use Node.js 18.20.3
+            - name: Use Node.js 20.0.9
               uses: actions/setup-node@v1
               with:
-                  node-version: 18.20.3
+                  node-version: 20.0.9
             - run: |
                   node --version
                   yarn --version
