@@ -13,6 +13,7 @@ import MenuDropdown from '@/components/MenuDropdown/MenuDropdown';
 import AdjustmentsVerticalIcon from '@/icons/Common/AdjustmentsVertical.svg';
 import XMarkIcon from '@/icons/Common/XMark.svg';
 import SquaresPlusIcon from '@/icons/Common/SquaresPlus.svg';
+import { Cog8ToothIcon } from '@heroicons/react/24/outline';
 import ConfirmationModal from './ConfirmationModal';
 import * as logger from '../../logger';
 
@@ -328,9 +329,9 @@ export default function EditorSection({
         </div>
 
         {loadResource === false ? (
-          <div className="w-full h-full  flex  items-center justify-center prose-sm p-4 text-xl">
+          <div className="w-full h-full flex items-center justify-center prose-sm p-4 text-xl">
             <div className="text-center">
-              <div className="text-xs uppercase pb-4">
+              <div className="p-5 text-xs uppercase pb-4">
                 {t('label-editor-load-module')}
               </div>
               <button
@@ -339,6 +340,27 @@ export default function EditorSection({
                 onClick={showResourcesPanel}
               >
                 <SquaresPlusIcon
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+            <div className="text-center">
+              <div className="p-5 text-xs uppercase pb-4">
+                {"Open checks"}
+              </div>
+              <button
+                type="button"
+                className="p-4 bg-gray-200 rounded-lg ring-offset-1"
+                onClick={() => {
+                  let copyRefResources = referenceResources;
+                  referenceResources.selectedResource = 'checks';
+                  setLoadResource(true);
+                  setReferenceResources(referenceResources);
+                }}
+              >
+                <Cog8ToothIcon
+                  aria-label="close-lock"
                   className="h-5 w-5"
                   aria-hidden="true"
                 />

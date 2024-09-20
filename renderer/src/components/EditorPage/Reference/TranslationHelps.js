@@ -16,6 +16,7 @@ const TranslationHelps = ({
     },
   } = useContext(ReferenceContext);
   const { t } = useTranslation();
+  console.log("selectedResource ==",selectedResource)
 
   const translationQuestionsPath = `${(chapter < 10) ? (`0${ chapter}`)
   : chapter}/${(verse < 10) ? (`0${ verse}`) : verse}.md`;

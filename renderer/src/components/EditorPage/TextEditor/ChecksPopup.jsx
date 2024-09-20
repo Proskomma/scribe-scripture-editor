@@ -5,6 +5,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { SnackBar } from '@/components/SnackBar';
 import { Disclosure } from '@headlessui/react';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
+import { randomUUID } from 'crypto';
 // import * as logger from '../../logger';
 
 export default function ChecksPopup({
@@ -29,16 +30,24 @@ export default function ChecksPopup({
 	useEffect(() => {
 		if (isArray) {
 			let tmpGroupedData = {};
-			console.log(content);
+			let currentName = "";
 			for (let check of content) {
-				console.log("check==", check);
-				if (check.issues.length > 0) {
-					tmpGroupedData[check.qName] = check.issues
+				// console.log("check==", check);
+				currentName = check.name;
+				if (!tmpGroupedData[currentName]) {
+					tmpGroupedData[currentName] = [];
 				}
+				delete check.name;
+				tmpGroupedData[currentName].push(check);
 			}
+			console.log("tmpGroupedData ==", tmpGroupedData)
 			setGroupedData(tmpGroupedData);
 		}
 	}, [content]);
+
+	useEffect(() => {
+		console.log("groupedData ==", groupedData)
+	}, [groupedData]);
 
 	// const groupedData = () => {
 	// 	let group = {};
@@ -98,7 +107,7 @@ export default function ChecksPopup({
 													<Disclosure.Button className='flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75'>
 														<span>{key}</span>
 														<ChevronUpIcon
-															className={`${open ? 'transform rotate-180' : ''
+															className={`${open ? '' : 'transform rotate-180'
 																} w-5 h-5 text-gray-500`}
 														/>
 													</Disclosure.Button>
