@@ -18,7 +18,6 @@ export default function EditorMenuBar(props) {
     setVerseNumber,
     handleSelectedFont,
     setTriggerVerseInsert,
-    checks,
     handleEditorFontSize,
     editorFontSize,
   } = props;
@@ -114,19 +113,6 @@ export default function EditorMenuBar(props) {
             <BookmarkIcon
               className="h-5 mr-4 w-5 text-white cursor-pointer"
               aria-hidden="true"
-            />
-          </div>
-        </div>
-        <div
-          title="Launch checks"
-          className="flex items-center mr-auto"
-        >
-          <div>
-            <Cog8ToothIcon
-              aria-label="close-lock"
-              className="h-5 mr-3 w-5 text-white cursor-pointer"
-              aria-hidden="true"
-              onClick={() => checks()}
             />
           </div>
         </div>

@@ -14,18 +14,15 @@ import EditorMenuBar from './EditorMenuBar';
 import Editor from './Editor';
 import ChecksPopup from './ChecksPopup';
 import { PipelineHandler, pipelines } from 'proskomma-json-tools';
-import checker from 'perf-checks';
 
 export default function TextEditor() {
   const { state, actions } = useContext(ScribexContext);
   const { verbose } = state;
   const [selectedBook, setSelectedBook] = useState();
-  const [openChecksPopup, setOpenChecksPopup] = useState(false);
   const [bookChange, setBookChange] = useState(false);
   const [chapterNumber, setChapterNumber] = useState(1);
   const [verseNumber, setVerseNumber] = useState(1);
   const [triggerVerseInsert, setTriggerVerseInsert] = useState(false);
-  const [contentPopUp, setContentPopUp] = useState({});
   // const [newVerChapNumber, setInsertNumber] = useState('');
   // const [insertVerseRChapter, setInsertVerseRChapter] = useState('');
 
@@ -95,39 +92,6 @@ export default function TextEditor() {
     }
   }, [htmlPerf, state.sequenceIds, perfState]);
 
-  const checks = async () => {
-    const fse = window.require('fs-extra');
-    const path = window.require('path');
-    // const checker = window.require('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/index.js');
-
-    const usfmContent = { usfm: "\\id MRK" };
-    const spec = fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/ks.json');
-
-    if (perfActions && htmlPerf) {
-      // const perfContent = { perf: fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/MARK_titus_aligned_eng.json') };
-      const perfContent = await perfActions.getPerf();
-
-      let ret = checker({ content: { perf: perfContent }, spec, contentType: "perf" });
-      // const { PipelineHandler } = require('proskomma-json-tools');
-      // if (perfState.usfmText) {
-      //   const pipelineH = new PipelineHandler(pipelines);
-      //   console.log(pipelineH.listPipelinesNames());
-      //   console.log("type of perfState.usfmText ==", perfState.usfmText);
-
-      //   let output = await pipelineH.runPipeline("usfmToPerfPipeline", {
-      //     usfm: perfState.usfmText,
-      //     selectors: { "lang": "fra", "abbr": "fraLSG" }
-      //   });
-      setContentPopUp(ret);
-      setOpenChecksPopup(true);
-      console.log(ret);
-    }
-    // }
-
-
-    // console.log("usfmText ==",);
-  }
-
   const _props = {
     ...state,
     ...perfState,
@@ -148,7 +112,6 @@ export default function TextEditor() {
     handleSelectedFont,
     triggerVerseInsert,
     setTriggerVerseInsert,
-    checks
   };
   return (
     <>
@@ -161,7 +124,6 @@ export default function TextEditor() {
         <EditorMenuBar {..._props} />
         <Editor {..._props} />
       </div>
-      <ChecksPopup openChecksPopup={openChecksPopup} setOpenChecksPopup={setOpenChecksPopup} content={contentPopUp} />
     </>
   );
 }

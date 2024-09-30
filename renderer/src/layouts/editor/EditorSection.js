@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ReferenceContext } from '@/components/context/ReferenceContext';
 import { ProjectContext } from '@/components/context/ProjectContext';
 import ResourcesPopUp from '@/components/Resources/ResourcesPopUp';
+import ChecksPopup from '@/components/EditorPage/TextEditor/ChecksPopup';
 import { classNames } from '@/util/classNames';
 import TaNavigation from '@/components/EditorPage/Reference/TA/TaNavigation';
 import TwNavigation from '@/components/EditorPage/Reference/TW/TwNavigation';
@@ -16,6 +17,7 @@ import SquaresPlusIcon from '@/icons/Common/SquaresPlus.svg';
 import { Cog8ToothIcon } from '@heroicons/react/24/outline';
 import ConfirmationModal from './ConfirmationModal';
 import * as logger from '../../logger';
+import checker from 'perf-checks';
 
 export default function EditorSection({
   title,
@@ -47,6 +49,7 @@ export default function EditorSection({
   const [openResourcePopUp, setOpenResourcePopUp] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [projectScriptureDir, setProjectScriptureDir] = useState();
+  const [contentChecks, setContentChecks] = useState({});
   const { t } = useTranslation();
   const {
     state: {
@@ -168,6 +171,40 @@ export default function EditorSection({
         break;
     }
   };
+
+  const checks = async () => {
+    const fse = window.require('fs-extra');
+    const path = window.require('path');
+    // const checker = window.require('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/index.js');
+
+    const usfmContent = { usfm: "\\id MRK" };
+    const spec = fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/ks.json');
+
+    const perfActions = false;
+    if (perfActions && htmlPerf) {
+      // const perfContent = { perf: fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/MARK_titus_aligned_eng.json') };
+      const perfContent = await perfActions.getPerf();
+
+      let ret = checker({ content: { perf: perfContent }, spec, contentType: "perf" });
+      // const { PipelineHandler } = require('proskomma-json-tools');
+      // if (perfState.usfmText) {
+      //   const pipelineH = new PipelineHandler(pipelines);
+      //   console.log(pipelineH.listPipelinesNames());
+      //   console.log("type of perfState.usfmText ==", perfState.usfmText);
+
+      //   let output = await pipelineH.runPipeline("usfmToPerfPipeline", {
+      //     usfm: perfState.usfmText,
+      //     selectors: { "lang": "fra", "abbr": "fraLSG" }
+      //   });
+      setContentChecks(ret);
+      // setOpenChecksPopup(true);
+      console.log(ret);
+    }
+    // }
+
+
+    // console.log("usfmText ==",);
+  }
 
   useEffect(() => {
     // Since we are adding reference resources from different places the data we have are inconsistant.
@@ -357,6 +394,7 @@ export default function EditorSection({
                   referenceResources.selectedResource = 'checks';
                   setLoadResource(true);
                   setReferenceResources(referenceResources);
+                  checks();
                 }}
               >
                 <Cog8ToothIcon
@@ -367,7 +405,7 @@ export default function EditorSection({
               </button>
             </div>
           </div>
-        ) : (
+        ) : referenceResources.selectedResource !== 'checks' ? (
           <div
             style={{
               fontFamily: 'sans-serif',
@@ -381,6 +419,10 @@ export default function EditorSection({
           >
             {children}
           </div>
+        ) : (
+          <ChecksPopup
+            content={contentChecks}
+          />
         )}
 
         {/* //div 12 */}
