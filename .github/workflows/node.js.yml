@@ -137,7 +137,7 @@ jobs:
                 
 
             - name: set max memory allocation
-              run: export NODE_OPTIONS=-max_old_space_size=8192
+              run: export NODE_OPTIONS=--max_old_space_size=4096
 
             - name: yarn install
               run: yarn install
