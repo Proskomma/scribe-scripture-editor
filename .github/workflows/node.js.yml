@@ -140,7 +140,7 @@ jobs:
               run: export NODE_OPTIONS=-max_old_space_size=4096
 
             - name: yarn install
-              run: yarn install --verbose
+              run: yarn install
 
             - name: install dmg-license
               run: yarn add dmg-license
