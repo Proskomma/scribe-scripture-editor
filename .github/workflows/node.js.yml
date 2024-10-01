@@ -100,6 +100,7 @@ jobs:
         runs-on: macos-latest
         env:
             CI: false
+            NODE_OPTIONS: --max-old-space-size=4096
         strategy:
             matrix:
                 node-version: [18.20.3]
@@ -134,10 +135,6 @@ jobs:
                   echo 'export PKG_CONFIG_PATH="/opt/homebrew/opt/jpeg/lib/pkgconfig"' >> $HOME/.zprofile
                   eval "$(/opt/homebrew/bin/brew shellenv)"
                   brew install python-setuptools
-                
-
-            - name: set max memory allocation
-              run: export NODE_OPTIONS="--max-old-space-size=4096"
 
             - name: yarn install
               run: yarn install
