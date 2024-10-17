@@ -46,8 +46,9 @@ export default function TextEditor() {
       return;
     }
     const { usj } = cachedData;
-    if (!usj && usj?.entries(usj).length === 0) { return; }
-    console.log(usj);
+    if (!usj) { return; }
+    if (Object.keys(usj).length === 0) { return; }
+    // console.log(usj);
     setUsjInput(usj);
   }, [book, cachedData]);
 

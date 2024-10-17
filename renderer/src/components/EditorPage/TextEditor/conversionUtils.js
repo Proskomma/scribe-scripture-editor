@@ -1,25 +1,41 @@
-import USFMParser from 'sj-usfm-grammar';
+// import USFMParser from 'sj-usfm-grammar';
+// import { transform } from '@proskomma/hallomai';
+import init, { transform } from "@proskomma/hallomai";
 
 let usfmParserInstance;
 let usfmParserInitialized;
+let wasmInitialized = false;
+
+// export async function initializeParser() {
+//   if (!usfmParserInstance) {
+//     if (!usfmParserInitialized) {
+//       usfmParserInitialized = await USFMParser.init();
+//     }
+//     await usfmParserInitialized;
+//     usfmParserInstance = new USFMParser();
+//   }
+//   return usfmParserInstance;
+// }
 
 export async function initializeParser() {
-  if (!usfmParserInstance) {
-    if (!usfmParserInitialized) {
-      usfmParserInitialized = await USFMParser.init();
-    }
-    await usfmParserInitialized;
-    usfmParserInstance = new USFMParser();
-  }
-  return usfmParserInstance;
+  wasmInitialized = true;
+  return init()
 }
 
 export async function convertUsfmToUsj(usfm) {
-  if (!usfmParserInstance) {
-    usfmParserInstance = await initializeParser();
+  // if (!usfmParserInstance) {
+  //   usfmParserInstance = await initializeParser();
+  // }
+  if (!wasmInitialized) {
+    await initializeParser();
+  }
+  if (!wasmInitialized) {
+    await initializeParser();
   }
   try {
-    const usj = usfmParserInstance.usfmToUsj(usfm);
+    console.log("ici oui")
+    const usj = transform(usfm, 'usfm', 'usj');
+    console.log("ici en fait")
     return { usj };
   } catch (e) {
     return { usj: { content: [] }, error: e };
@@ -27,10 +43,12 @@ export async function convertUsfmToUsj(usfm) {
 }
 
 export async function convertUsjToUsfm(usj) {
-  if (!usfmParserInstance) {
-    usfmParserInstance = await initializeParser();
-  }
-  const usfm = usfmParserInstance.usjToUsfm(usj);
+  // if (!usfmParserInstance) {
+  //   usfmParserInstance = await initializeParser();
+  // }
+  console.log("HEAR ME")
+  const usfm = transform(usj, 'usj', 'usfm');
+  console.log("OUT")
   return usfm;
 }
 
