@@ -12,8 +12,10 @@ export default function ChecksContent({ content }) {
 	const [error, setError] = useState('');
 
 	const isArray = Array.isArray(content);
+	console.log("loaded checks", JSON.stringify(content, null, 4));
 
 	useEffect(() => {
+		console.log("isArray", isArray)
 		if (isArray) {
 			let tmpGroupedData = {};
 			let currentName = "";

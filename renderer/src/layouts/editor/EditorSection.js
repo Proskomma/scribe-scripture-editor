@@ -181,9 +181,11 @@ export default function EditorSection({
     const spec = fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/ks.json');
 
     const perfActions = false;
+    console.log("hello");
     if (perfActions && htmlPerf) {
       // const perfContent = { perf: fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/MARK_titus_aligned_eng.json') };
       const perfContent = await perfActions.getPerf();
+      console.log('perfContent ==',perfContent);
 
       let ret = checker({ content: { perf: perfContent }, spec, contentType: "perf" });
       // const { PipelineHandler } = require('proskomma-json-tools');
@@ -198,7 +200,7 @@ export default function EditorSection({
       //   });
       setContentChecks(ret);
       // setOpenChecksPopup(true);
-      console.log(ret);
+      console.log('ret',ret);
     }
     // }
 
