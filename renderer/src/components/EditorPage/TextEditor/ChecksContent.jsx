@@ -3,16 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { SnackBar } from '@/components/SnackBar';
 import { Disclosure } from '@headlessui/react';
-import { ChevronUpIcon } from '@heroicons/react/20/solid';
+import { ChevronUpIcon, ArrowPathIcon } from '@heroicons/react/20/solid';
+// import { useReadUsfmFile } from './hooks/useReadUsfmFile';
 
-export default function ChecksContent({ content }) {
+export default function ChecksContent({ content, updateContent }) {
 	const [openSnackBar, setOpenSnackBar] = useState(false);
 	const [snackText, setSnackText] = useState('');
 	const [groupedData, setGroupedData] = useState({});
 	const [error, setError] = useState('');
+	const [isRefreshing, setIsRefreshing] = useState(false);
+
 
 	const isArray = Array.isArray(content);
-	console.log("loaded checks", JSON.stringify(content, null, 4));
 
 	useEffect(() => {
 		console.log("isArray", isArray)
@@ -35,10 +37,27 @@ export default function ChecksContent({ content }) {
 		console.log("groupedData ==", groupedData);
 	}, [groupedData]);
 
+	const handleRefreshClick = () => {
+		setIsRefreshing(true);
+		updateContent();
+
+		// Add delay to simulate refreshing and stop the rotation animation after 1 second
+		setTimeout(() => {
+			setIsRefreshing(false);
+		}, 1000);
+	};
+
 	return (
-		<div className='container mx-auto'>
+		<div className='w-full max-w-4xl mx-auto'>
 			<div className='bg-primary flex justify-between items-center p-4 rounded-lg'>
 				<h2 className='text-white font-bold text-lg'>Checks</h2>
+				<button
+					className={`top-4 right-4 text-white p-2 rounded-full bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 ${isRefreshing ? 'animate-spin' : ''
+						}`} // Add rotation animation when refreshing
+					onClick={handleRefreshClick}
+				>
+					<ArrowPathIcon className="w-6 h-6" />
+				</button>
 			</div>
 			<div className='bg-gray-50 p-6 rounded-lg max-h-[75vh] overflow-y-auto'>
 				{Object.keys(groupedData).length > 0 ? (

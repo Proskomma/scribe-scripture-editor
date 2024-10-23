@@ -8,7 +8,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useReadUsfmFile } from './hooks/useReadUsfmFile';
 import EditorMenuBar from './EditorMenuBar';
 // import Editor from './Editor';
-// import ChecksPopup from './ChecksPopup';
+// import ChecksContent from './ChecksContent';
 // import { PipelineHandler, pipelines } from 'proskomma-json-tools';
 import LexicalEditor from './LexicalEditor';
 import { updateCacheNSaveFile } from './updateAndSave';

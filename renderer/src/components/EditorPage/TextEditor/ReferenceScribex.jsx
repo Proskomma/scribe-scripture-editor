@@ -55,6 +55,7 @@ export default function ReferenceScribex(props) {
     htmlMap,
     refName,
   });
+  console.log("perfActions", perfActions)
 
   useEffect(() => {
     actions.setSequenceIds([]);

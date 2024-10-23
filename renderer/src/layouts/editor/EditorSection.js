@@ -5,7 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { ReferenceContext } from '@/components/context/ReferenceContext';
 import { ProjectContext } from '@/components/context/ProjectContext';
 import ResourcesPopUp from '@/components/Resources/ResourcesPopUp';
-import ChecksPopup from '@/components/EditorPage/TextEditor/ChecksPopup';
+import { readRefBurrito } from 'src/core/reference/readRefBurrito.js';
+import { readFile } from 'src/core/editor/readFile';
+import ChecksContent from '@/components/EditorPage/TextEditor/ChecksContent';
 import { classNames } from '@/util/classNames';
 import TaNavigation from '@/components/EditorPage/Reference/TA/TaNavigation';
 import TwNavigation from '@/components/EditorPage/Reference/TW/TwNavigation';
@@ -17,7 +19,10 @@ import SquaresPlusIcon from '@/icons/Common/SquaresPlus.svg';
 import { Cog8ToothIcon } from '@heroicons/react/24/outline';
 import ConfirmationModal from './ConfirmationModal';
 import * as logger from '../../logger';
+import packageInfo from '../../../../package.json';
+import localforage from 'localforage';
 import checker from 'perf-checks';
+import { Proskomma } from 'proskomma-core';
 
 export default function EditorSection({
   title,
@@ -54,6 +59,7 @@ export default function EditorSection({
   const {
     state: {
       layout,
+      bookId,
       openResource1,
       openResource2,
       openResource3,
@@ -61,6 +67,25 @@ export default function EditorSection({
     },
     actions: { setLayout },
   } = useContext(ReferenceContext);
+  // const {
+  //   state: {
+  //     bookId,
+  //     bookList,
+  //     bookName,
+  //     chapter,
+  //     verse,
+  //     chapterList,
+  //     verseList,
+  //     languageId,
+  //     //  closeNavigation,
+  //   }, actions: {
+  //     onChangeBook,
+  //     onChangeChapter,
+  //     onChangeVerse,
+  //     applyBooksFilter,
+  //     setCloseNavigation,
+  //   },
+  // } = useContext(ReferenceContext);
   const {
     states: { scrollLock, selectedProjectMeta },
   } = useContext(ProjectContext);
@@ -175,33 +200,53 @@ export default function EditorSection({
   const checks = async () => {
     const fse = window.require('fs-extra');
     const path = window.require('path');
+    const spec = fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/ks.json');
     // const checker = window.require('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/index.js');
 
-    const usfmContent = { usfm: "\\id MRK" };
-    const spec = fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/ks.json');
-
-    const perfActions = false;
-    console.log("hello");
-    if (perfActions && htmlPerf) {
-      // const perfContent = { perf: fse.readJsonSync('/home/daniel/Documents/Projects/temp/scribe-scripture-editor/renderer/src/components/EditorPage/TextEditor/utils/doChecks/MARK_titus_aligned_eng.json') };
-      const perfContent = await perfActions.getPerf();
-      console.log('perfContent ==',perfContent);
-
-      let ret = checker({ content: { perf: perfContent }, spec, contentType: "perf" });
-      // const { PipelineHandler } = require('proskomma-json-tools');
-      // if (perfState.usfmText) {
-      //   const pipelineH = new PipelineHandler(pipelines);
-      //   console.log(pipelineH.listPipelinesNames());
-      //   console.log("type of perfState.usfmText ==", perfState.usfmText);
-
-      //   let output = await pipelineH.runPipeline("usfmToPerfPipeline", {
-      //     usfm: perfState.usfmText,
-      //     selectors: { "lang": "fra", "abbr": "fraLSG" }
-      //   });
-      setContentChecks(ret);
-      // setOpenChecksPopup(true);
-      console.log('ret',ret);
+    // const usfmContent = { usfm: "\\id MRK" };
+    const userProfile = await localforage.getItem('userProfile');
+    const userName = userProfile?.username;
+    const projectName = await localforage.getItem('currentProject');
+    const newpath = localStorage.getItem('userPath');
+    const metaPath = path.join(newpath, packageInfo.name, 'users', userName, 'projects', projectName, 'metadata.json');
+    const metaData = JSON.parse(await readRefBurrito({ metaPath }));
+    const _books = [];
+    Object.entries(metaData.ingredients).forEach(async ([key, _ingredients]) => {
+      if (_ingredients.scope) {
+        const _bookID = Object.entries(_ingredients.scope)[0][0];
+        const bookObj = { bookId: _bookID, fileName: key };
+        _books.push(bookObj);
+      }
+    });
+    const [currentBook] = _books.filter((bookObj) => bookObj.bookId === bookId?.toUpperCase());
+    const projectCachePath = path.join(newpath, packageInfo.name, 'users', userName, 'project_cache', projectName);
+    if (currentBook) {
+      console.log('currentBook ===',currentBook);
+      const fileData = await readFile({ projectname: projectName, filename: currentBook.fileName, username: userName });
+      const book = {
+        selectors: { org: 'unfoldingWord', lang: 'en', abbr: 'ult' },
+        bookCode: currentBook.bookId?.toLowerCase(),
+        data: fileData,
+      };
+      // setUsfmData(books);
+      const usfmContent = book.data;
+      const pk = new Proskomma();
+      const selectors = {
+        lang: 'xxx',
+        abbr: 'yyy',
+      }
+      pk.importDocuments(selectors, 'usfm', [usfmContent]);
+      const perfResultDocument = pk.gqlQuerySync('{documents {perf} }').data.documents[0];
+      const perf = JSON.parse(perfResultDocument.perf);
+      if (perf) {
+        const perfContent = perf;
+  
+        let ret = checker({ content: { perf: perfContent }, spec, contentType: "perf" });
+        setContentChecks(ret);
+        console.log('ret',ret);
+      }
     }
+
     // }
 
 
@@ -209,7 +254,7 @@ export default function EditorSection({
   }
 
   useEffect(() => {
-    // Since we are adding reference resources from different places the data we have are inconsistant.
+    // Since we are adding reference resources from different places we have inconsistant data.
     // Looking for flavor from the flavors because flavor is only available for scripture and gloss(obs), not for Translation resources
     const flavors = ['obs', 'bible', 'audio'];
     if (
@@ -422,8 +467,9 @@ export default function EditorSection({
             {children}
           </div>
         ) : (
-          <ChecksPopup
+          <ChecksContent
             content={contentChecks}
+            updateContent={checks}
           />
         )}
 
