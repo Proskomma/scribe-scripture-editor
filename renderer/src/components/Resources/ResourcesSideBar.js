@@ -32,18 +32,18 @@ export default function ResourcesSidebar({
   useEffect(() => {
     if (!selectResource) {
       switch (selectedProjectMeta.type.flavorType.flavor.name) {
-        case 'textTranslation':
-          setSelectResource('bible');
-          break;
-        case 'textStories':
-          setSelectResource('obs');
-          break;
-        case 'audioTranslation':
-          setSelectResource('audio');
-          break;
-        default:
-          setSelectResource('bible');
-          break;
+      case 'textTranslation':
+        setSelectResource('bible');
+        break;
+      case 'textStories':
+        setSelectResource('obs');
+        break;
+      case 'audioTranslation':
+        setSelectResource('audio');
+        break;
+      default:
+        setSelectResource('bible');
+        break;
       }
       setTitle('Bible');
     }
@@ -68,12 +68,12 @@ export default function ResourcesSidebar({
           resourceType: 'translationWordList',
           Icon: ClipboardDocumentListIcon,
         },
-        {
-          id: 'tw',
-          title: t('label-resource-twlm'),
-          resourceType: 'translationWord',
-          Icon: Square3Stack3DIcon,
-        },
+        // {
+        //   id: 'tw',
+        //   title: t('label-resource-twlm'),
+        //   resourceType: 'translationWord',
+        //   Icon: Square3Stack3DIcon,
+        // },
         {
           id: 'tq',
           title: t('label-resource-tq'),

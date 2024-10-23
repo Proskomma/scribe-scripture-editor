@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Disclosure, Transition } from '@headlessui/react';
@@ -13,16 +14,17 @@ export default function SelectBook({
   selectedBooks,
   setSelectedBooks,
   scope,
+  setBook,
   existingScope = [],
+  disableScope = {},
+  call = '',
 }) {
   const [openNT, setOpenNT] = useState(true);
   const [openOT, setOpenOT] = useState(true);
-
   function toggleNT() {
     setOpenNT(true);
     setOpenOT(false);
   }
-
   function toggleOT() {
     setOpenOT(true);
     setOpenNT(false);
@@ -36,6 +38,7 @@ export default function SelectBook({
   function bookSelect(e, bookId) {
     e.preventDefault();
     onChangeBook(bookId, selectedBooks[0]);
+    setBook(bookId);
     if (multiSelectBook === false) { selectBook(); }
   }
 
@@ -48,7 +51,7 @@ export default function SelectBook({
       const _selectedBooks = [...selectedBooks];
       const selectedIndex = _selectedBooks.indexOf(bookID.toUpperCase());
       if (!(scope === 'Other' && existingScope?.length > 0 && existingScope.includes(bookID.toUpperCase()))) {
-      _selectedBooks.splice(selectedIndex, 1);
+        _selectedBooks.splice(selectedIndex, 1);
       }
       setSelectedBooks(_selectedBooks);
     }
@@ -99,11 +102,13 @@ export default function SelectBook({
                         role="presentation"
                         key={book.name}
                         aria-label={`ot-${book.name}`}
-                        onClick={(e) => (
-                          multiSelectBook
+                        onClick={(e) => (call === 'audio-project' ? (Object.prototype.hasOwnProperty.call(disableScope, (book.key).toUpperCase())
+                          ? (multiSelectBook
                             ? selectMultipleBooks(e, book.key, book.name)
-                            : bookSelect(e, book.key, book.name))}
-                        className={`${styles.bookSelect} ${selectedBooks.includes((book.key).toUpperCase()) ? styles.active : ''}`}
+                            : bookSelect(e, book.key, book.name)) : '') : (multiSelectBook
+                          ? selectMultipleBooks(e, book.key, book.name)
+                          : bookSelect(e, book.key, book.name)))}
+                        className={`${call === 'audio-project' && !Object.prototype.hasOwnProperty.call(disableScope, (book.key).toUpperCase()) ? styles.disabled : (selectedBooks.includes((book.key).toUpperCase()) ? (styles.bookSelect, styles.active) : styles.bookSelect)}`}
                       >
                         {book.name}
                       </div>
@@ -138,9 +143,10 @@ export default function SelectBook({
                       key={book.name}
                       role="presentation"
                       aria-label={`nt-${book.name}`}
-                      onClick={(e) => (multiSelectBook
-                        ? selectMultipleBooks(e, book.key, book.name)
-                        : bookSelect(e, book.key, book.name))}
+                      onClick={(e) => (
+                        multiSelectBook
+                          ? selectMultipleBooks(e, book.key, book.name)
+                          : bookSelect(e, book.key, book.name))}
                       className={`${styles.bookSelect} ${selectedBooks.includes((book.key).toUpperCase()) ? styles.active : ''}`}
                     >
                       {book.name}

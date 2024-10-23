@@ -1,4 +1,4 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# This workflow will do a clean install of node dependencies, build the source code, and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
 name: Node.js CI
@@ -12,6 +12,7 @@ jobs:
         runs-on: ubuntu-latest
         env:
             CI: false
+            NODE_OPTIONS: --max-old-space-size=4096
         strategy:
             matrix:
                 node-version: [18.20.3]
@@ -31,17 +32,6 @@ jobs:
             - name: yarn install
               run: yarn install
 
-            - name: set max memory allocation
-              run: export NODE_OPTIONS=-max_old_space_size=4096
-
-            #             - name: Read version and commit sha
-            #               run: |
-            #                   echo "::set-env name=HASH::$(echo $GITHUB_SHA | cut -c1-7)"
-            #                   echo "::set-env name=APP_VERSION::$(node -p -e "require('./package.json').version")"
-
-            #             - name: Set artifact name
-            #               run: echo "::set-env name=ARTIFACT_NAME::$(echo "Autographa-linux-x64-$APP_VERSION.deb")"
-
             - name: package
               id: package
               run: |
@@ -49,17 +39,19 @@ jobs:
 
             - name: Cleanup artifacts
               run: |
-                  npx rimraf "dist/!(*.deb|*.AppImage|*.dmg)"
+                  npx rimraf "dist/!(*.deb|*.AppImage|*.dmg|*.exe)"
             - name: Upload artifacts
-              uses: actions/upload-artifact@v1
+              uses: actions/upload-artifact@v4
               with:
-                  name: Scribe
-                  path: dist
+                name: Scribe-${{ github.run_id }}-${{ github.sha }}
+                path: dist
+                overwrite: true
 
     build-windows:
         runs-on: ubuntu-latest
         env:
             CI: false
+            NODE_OPTIONS: --max-old-space-size=4096
         strategy:
             matrix:
                 node-version: [18.20.3]
@@ -76,9 +68,6 @@ jobs:
 
             - name: set @bitregistry translation-help
               run: yarn config set '@bit:registry' https://node.bit.dev
-
-            - name: set max memory allocation
-              run: export NODE_OPTIONS=-max_old_space_size=4096
 
             - name: install dependencies
               run: yarn install
@@ -97,15 +86,17 @@ jobs:
                   mkdir -p artifacts
                   mv dist/*.exe artifacts
             - name: Upload artifacts
-              uses: actions/upload-artifact@v1
+              uses: actions/upload-artifact@v4
               with:
                 name: Scribe
                 path: artifacts
-
+                overwrite: true
+    # Commented the below code for getting the binaries build for windows and Ubuntu
     build-mac:
         runs-on: macos-latest
         env:
             CI: false
+            NODE_OPTIONS: --max-old-space-size=4096
         strategy:
             matrix:
                 node-version: [18.20.3]
@@ -119,6 +110,8 @@ jobs:
             - run: |
                   node --version
                   yarn --version
+            - name: Increase file descriptor limit
+              run: sudo sysctl -w kern.maxfiles=10485760 && sudo sysctl -w kern.maxfilesperproc=1048576
             - name: set @bitregistry translation-help
               run: yarn config set '@bit:registry' https://node.bit.dev
 
@@ -137,11 +130,7 @@ jobs:
                   echo 'export CPPFLAGS="-I/opt/homebrew/opt/jpeg/include"' >> $HOME/.zprofile
                   echo 'export PKG_CONFIG_PATH="/opt/homebrew/opt/jpeg/lib/pkgconfig"' >> $HOME/.zprofile
                   eval "$(/opt/homebrew/bin/brew shellenv)"
-                  /opt/homebrew/opt/python@3.12/bin/pip3 install setuptools
-                  /opt/homebrew/opt/python@3.12/bin/pip3 install distutils
-
-            - name: set max memory allocation
-              run: export NODE_OPTIONS=-max_old_space_size=4096
+                  brew install python-setuptools
 
             - name: yarn install
               run: yarn install
@@ -156,9 +145,10 @@ jobs:
 
             - name: Cleanup artifacts
               run: |
-                  npx rimraf "dist/!(*.deb|*.AppImage|*.dmg)"
+                  npx rimraf "dist/!(*.deb|*.AppImage|*.dmg|*.exe)"
             - name: Upload artifacts
-              uses: actions/upload-artifact@v1
+              uses: actions/upload-artifact@v4
               with:
-                  name: Scribe
-                  path: dist
+                name: Scribe-Mac-${{ github.run_id }}-${{ github.sha }}
+                path: dist
+                overwrite: true

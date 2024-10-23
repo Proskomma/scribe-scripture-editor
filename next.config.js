@@ -1,13 +1,16 @@
 // const nodeExternals = require('webpack-node-externals');
 const path = require('path');
 const colors = require('tailwindcss/colors');
+const TerserPlugin = require("terser-webpack-plugin");
 
 const nextConfig = {
   webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `fs` module
     if (!isServer) {
       config.resolve.fallback.fs = false;
+      config.resolve.alias.canvas = false;
     }
+
     config.module.rules.push({
       test: /\.md$/,
       use: 'raw-loader',

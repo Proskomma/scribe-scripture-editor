@@ -12,8 +12,9 @@ import EditorSync from '@/components/Sync/Gitea/EditorSync/EditorSync';
 // import useNetwork from '@/components/hooks/useNetowrk';
 import { isElectron } from '@/core/handleElectron';
 // import Font from '@/icons/font.svg';
+import FramePdfPopup from '@/layouts/editor/FramePdfPopup.jsx';
+import { PrinterIcon, FolderIcon } from '@heroicons/react/24/outline';
 import ColumnsIcon from '@/icons/basil/Outline/Interface/Columns.svg';
-import MenuDropdown from '../../components/MenuDropdown/MenuDropdown';
 import menuStyles from './MenuBar.module.css';
 import packageInfo from '../../../../package.json';
 import { newPath, sbStorageDownload } from '../../../../supabase';
@@ -58,9 +59,12 @@ export default function SubMenuBar() {
     states: {
       editorSave,
       selectedProject,
+      openPdfPopup,
+      selectedProjectMeta,
     },
     actions: {
       setOpenSideBar,
+      setOpenPdfPopup,
     },
   } = useContext(ProjectContext);
 
@@ -68,6 +72,8 @@ export default function SubMenuBar() {
     setOpenSideBar(true);
   };
   const { t } = useTranslation();
+
+  // const [openBouquetPicker, setOpenBouquetPicker] = useState(false);
   // const networkState = useNetwork();
   // const FileMenuItems = [
   //   {
@@ -113,7 +119,7 @@ export default function SubMenuBar() {
     const { data, error } = await sbStorageDownload(`${newPath}/${email}/projects/${projectName}/metadata.json`);
     if (error) {
       // eslint-disable-next-line no-console
-      console.log('SubMenuBar.js', error);
+      console.error('SubMenuBar.js', error);
     }
     const metadata = JSON.parse(await data.text());
     setResourceType(metadata.type.flavorType.flavor.name);
@@ -293,6 +299,40 @@ export default function SubMenuBar() {
             {/* <div className={`group ${menuStyles.saved}`} title={`Network status : ${networkState.online ? 'Online' : 'Offline' }`}>
               <WifiIcon className={`w-6 h-6 ${networkState.online ? 'fill-green-500' : 'fill-red-500'}`} />
             </div> */}
+            {selectedProjectMeta?.type?.flavorType?.flavor?.name !== 'audioTranslation' && (
+              // eslint-disable-next-line
+              <div
+                aria-label="add-panels"
+                title="Print to PDF"
+                // title={t('TODO')}
+                type="div"
+                role="button"
+                className={`group ${menuStyles.btn} transition-all`}
+                onClick={() => setOpenPdfPopup(true)}
+              >
+                <PrinterIcon
+                  aria-label="open-lock"
+                  className="h-6 w-6 text-black cursor-pointer"
+                  aria-hidden="true"
+                />
+              </div>
+            )}
+
+            {/* <div
+              aria-label="add-panels"
+              title={'Open bouquet picker'}
+              // title={t('TODO')}
+              type="div"
+              role="button"
+              className={`group ${menuStyles.btn} transition-all`}
+              onClick={() => setOpenBouquetPicker(true)}
+            >
+              <FolderIcon
+                aria-label="open-lock"
+                className="h-6 w-6 text-black cursor-pointer"
+                aria-hidden="true"
+              />
+            </div> */}
 
             {/* Editor sync 2 new one */}
             <EditorSync selectedProject={selectedProject} />
@@ -338,6 +378,16 @@ export default function SubMenuBar() {
             >
               <InformationCircleIcon className="h-6 w-6" aria-hidden="true" />
             </button> */}
+
+            {/* popup for print to PDF */}
+            {openPdfPopup && (
+              <div className="fixed z-50 ">
+                <FramePdfPopup
+                  openPdfPopup={openPdfPopup}
+                  setOpenPdfPopup={setOpenPdfPopup}
+                />
+              </div>
+            )}
 
           </div>
         </div>

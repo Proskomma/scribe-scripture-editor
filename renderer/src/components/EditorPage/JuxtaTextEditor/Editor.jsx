@@ -2,7 +2,6 @@
 /* eslint-disable arrow-body-style */
 import React, { useContext, useEffect, useState } from 'react';
 import md5 from 'md5';
-
 import LoadingScreen from '@/components/Loading/LoadingScreen';
 import { ReferenceContext } from '@/components/context/ReferenceContext';
 import { ProjectContext } from '@/components/context/ProjectContext';
@@ -12,14 +11,13 @@ import EmptyScreen from '@/components/Loading/EmptySrceen';
 import SentenceContextProvider from '@/components/context/SentenceContext';
 import { useReadJuxtaFile } from '@/components/EditorPage/JuxtaTextEditor/hooks/useReadJuxtaFile';
 import { normalizeString } from '@/components/Projects/utils/updateJsonJuxta';
+import { readUserSettings } from '@/core/projects/userSettings';
 import { functionMapping } from './utils/insertFunctionMap';
-
 // import RecursiveBlock from './RecursiveBlock';
 // eslint-disable-next-line import/no-unresolved, import/extensions
 import { useAutoSaveIndication } from '@/hooks2/useAutoSaveIndication';
 import { onIntersection } from './utils/IntersectionObserver';
 import JuxtalinearEditor from '@/components/EditorPage/JuxtalinearEditor'; // eslint-disable-line
-// import { readUserSettings } from '@/core/projects/userSettings';
 
 export default function Editor(props) {
   const {
@@ -39,6 +37,8 @@ export default function Editor(props) {
     setChapterNumber,
     setVerseNumber,
     triggerVerseInsert,
+    juxtaMode,
+    setJuxtaMode,
   } = props;
 
   const {
@@ -50,6 +50,9 @@ export default function Editor(props) {
   const { usfmData, bookAvailable, readFileName } = useReadJuxtaFile();
   const [jsonFileContent, setJsonFileContent] = useState(null);
   const [loadingSentencesInProgress, setLoadingSentencesInProgress] = useState(true);
+
+  const [zoomLeftJuxtalign, setZoomLeftJuxtalign] = useState(24);
+  const [zoomRightJuxtalign, setZoomRightJuxtalign] = useState(24);
 
   const {
     states: { openSideBar, scrollLock },
@@ -69,6 +72,7 @@ export default function Editor(props) {
   const style = isSaving ? { cursor: 'progress' } : {};
 
   const [fileName, setFileName] = useState('');
+  const [helpAldearyOpenedOnce, setHelpAldearyOpenedOnce] = useState(false);
   const [sentences, setGlobalTotalSentences] = useState([]);
   const [originText, setOriginText] = useState([]);
   const [itemArrays, setItemArrays] = useState([]);
@@ -108,6 +112,17 @@ export default function Editor(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [triggerVerseInsert]);
+
+  useEffect(() => {
+    async function getUserSettings() {
+      if (!userSettingsJson) {
+        const tmpUsrSet = await readUserSettings();
+        setHelpAldearyOpenedOnce(true);
+        setUserSettingsJson(tmpUsrSet);
+      }
+    }
+    getUserSettings();
+  }, [helpAldearyOpenedOnce]);
 
   useAutoSaveIndication(isSaving);
 
@@ -167,7 +182,11 @@ export default function Editor(props) {
         })
         .filter(({ chunk }) => chunk.length);
     }
-    return sentences[curIndex].chunks
+    let index = 0;
+    if (sentences[curIndex]) {
+      index = curIndex;
+    }
+    return sentences[index].chunks
       .map(({ source, gloss, checksum }, index) => {
         return {
           chunk: source
@@ -194,7 +213,7 @@ export default function Editor(props) {
       setCurIndex(curIndex);
       setGlobalTotalSentences(remakeSentences(resContent.sentences));
       setOriginText(resContent.sentences.map((sentence) => sentence.sourceString));
-      if (resContent.sentences.length) {
+      if (resContent.sentences.length && resContent.sentences.length > 0) {
         setItemArrays([getItems(resContent.sentences)]);
       }
     }
@@ -245,6 +264,7 @@ export default function Editor(props) {
     setVerseNumber,
     bookChange,
     setBookChange,
+    juxtaMode,
   };
 
   return (
@@ -269,9 +289,12 @@ export default function Editor(props) {
               itemArrays,
               curIndex,
               jsonFileContent,
-              userSettingsJson,
               loadingSentencesInProgress,
               setLoadingSentencesInProgress,
+              helpAldearyOpenedOnce,
+              zoomLeftJuxtalign,
+              zoomRightJuxtalign,
+              userSettingsJson,
               setFileName,
               setGlobalSentences,
               setOriginText,
@@ -282,6 +305,9 @@ export default function Editor(props) {
               setChapterNumber,
               setVerseNumber,
               setJsonFileContent,
+              setHelpAldearyOpenedOnce,
+              setZoomLeftJuxtalign,
+              setZoomRightJuxtalign,
               setUserSettingsJson,
               getItems,
             }}

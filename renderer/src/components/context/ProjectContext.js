@@ -21,6 +21,10 @@ export const ProjectContext = React.createContext();
 
 const ProjectContextProvider = ({ children }) => {
   const [editorSave, setEditorSave] = useState('');
+  const [openPdfPopup, setOpenPdfPopup] = useState(false);
+  const [listResourcesForPdf, setListResourcesForPdf] = useState({
+    book: {}, jxl: {}, md: {}, html: {}, OBS: {}, tNotes: {}, 'OBS-TN': {},
+  });
   const [drawer, setDrawer] = useState(false);
   const [scrollLock, setScrollLock] = useState(false);
   const [sideTabTitle, setSideTabTitle] = useState('New');
@@ -54,6 +58,8 @@ const ProjectContextProvider = ({ children }) => {
   const [sideBarTab, setSideBarTab] = useState('');
   const [openImportPopUp, setOpenImportPopUp] = useState(false);
   const [openExportPopUp, setOpenExportPopUp] = useState(false);
+  const [openManageProject, setOpenManageProject] = useState(false);
+  const [contextProjectType, setContextProjectType] = useState('');
 
   const handleProjectFields = (prop) => (event) => {
     setNewProjectFields({ ...newProjectFields, [prop]: event.target.value });
@@ -67,7 +73,7 @@ const ProjectContextProvider = ({ children }) => {
     setLicenseList((advanceSettings.copyright).push({
       id: 'Other', title: 'Custom', licence: '', locked: false,
     }));
-    // setLanguages([advanceSettings.languages]);
+    setLanguages([advanceSettings.languages]);
     const json = {
       version: environment.AG_USER_SETTING_VERSION,
       history: {
@@ -85,6 +91,7 @@ const ProjectContextProvider = ({ children }) => {
       theme: 'light',
       userWorkspaceLocation: '',
       commonWorkspaceLocation: '',
+      juxtalignHelperOpened: false,
       resources: {
         door43: {
           translationNotes: [],
@@ -137,7 +144,7 @@ const ProjectContextProvider = ({ children }) => {
     };
     const data = sbStorageList(file);
     if (data.length === 0) {
-       sbStorageUpload(file, JSON.stringify(json), {
+      sbStorageUpload(file, JSON.stringify(json), {
         cacheControl: '3600',
         upsert: false,
       });
@@ -317,51 +324,51 @@ const ProjectContextProvider = ({ children }) => {
     }
   };
 
-    const updateWebJson = async (currentSettings) => {
-      let currentUser;
-      await localforage.getItem('userProfile').then((value) => {
-        currentUser = value.user.email;
-        setUsername(value.user.email);
-      });
-      const file = `${newPath}/${currentUser}/${environment.USER_SETTING_FILE}`;
-      const { data } = await sbStorageDownload(file);
-      if (data) {
-        const json = JSON.parse(await data.text());
-        // eslint-disable-next-line no-nested-ternary
-        const currentSetting = (currentSettings === 'copyright' ? copyright
-          : (currentSettings === 'languages' ? {
-            title: language.ang,
-            id: language.id,
-            scriptDirection: language.ld,
-            langCode: language.lc,
-            custom: true,
-          }
-            : canonSpecification));
-        if (currentSettings === 'canonSpecification') {
-          (json.history?.textTranslation[currentSettings])?.push(currentSetting);
-        } else if (json.history[currentSettings]
-          && uniqueId(json.history[currentSettings], currentSetting.id)) {
-          (json.history[currentSettings]).forEach((setting) => {
-            if (setting.id === currentSetting.id) {
-              const keys = Object.keys(setting);
-              keys.forEach((key) => {
-                setting[key] = currentSetting[key];
-              });
-            }
-          });
-        } else {
-          // updating the canon or pushing new language
-          (json.history[currentSettings]).push(currentSetting);
+  const updateWebJson = async (currentSettings) => {
+    let currentUser;
+    await localforage.getItem('userProfile').then((value) => {
+      currentUser = value.user.email;
+      setUsername(value.user.email);
+    });
+    const file = `${newPath}/${currentUser}/${environment.USER_SETTING_FILE}`;
+    const { data } = await sbStorageDownload(file);
+    if (data) {
+      const json = JSON.parse(await data.text());
+      // eslint-disable-next-line no-nested-ternary
+      const currentSetting = (currentSettings === 'copyright' ? copyright
+        : (currentSettings === 'languages' ? {
+          title: language.ang,
+          id: language.id,
+          scriptDirection: language.ld,
+          langCode: language.lc,
+          custom: true,
         }
-        json.version = environment.AG_USER_SETTING_VERSION;
-        json.sync.services.door43 = json?.sync?.services?.door43 ? json?.sync?.services?.door43 : [];
-        await sbStorageUpload(file, JSON.stringify(json));
-        await loadWebSettings();
+          : canonSpecification));
+      if (currentSettings === 'canonSpecification') {
+        (json.history?.textTranslation[currentSettings])?.push(currentSetting);
+      } else if (json.history[currentSettings]
+          && uniqueId(json.history[currentSettings], currentSetting.id)) {
+        (json.history[currentSettings]).forEach((setting) => {
+          if (setting.id === currentSetting.id) {
+            const keys = Object.keys(setting);
+            keys.forEach((key) => {
+              setting[key] = currentSetting[key];
+            });
+          }
+        });
       } else {
-        // eslint-disable-next-line no-console
-        console.error('ProjectContext.js', 'Failed to read the data from file');
+        // updating the canon or pushing new language
+        (json.history[currentSettings]).push(currentSetting);
       }
-    };
+      json.version = environment.AG_USER_SETTING_VERSION;
+      json.sync.services.door43 = json?.sync?.services?.door43 ? json?.sync?.services?.door43 : [];
+      await sbStorageUpload(file, JSON.stringify(json));
+      await loadWebSettings();
+    } else {
+      // eslint-disable-next-line no-console
+      console.error('ProjectContext.js', 'Failed to read the data from file');
+    }
+  };
 
   // common functions for create projects
   const createProjectCommonUtils = async () => {
@@ -407,6 +414,7 @@ const ProjectContextProvider = ({ children }) => {
     logger.debug('ProjectContext.js', 'In createProject');
     await createProjectCommonUtils();
     // common props pass for all project type
+    setContextProjectType(projectType);
     const projectMetaObj = {
       newProjectFields,
       language,
@@ -433,6 +441,7 @@ const ProjectContextProvider = ({ children }) => {
   const createSupabaseProject = async (call, project, update, projectType) => {
     createProjectCommonUtils();
     // common props pass for all project type
+    setContextProjectType(projectType);
     const projectMetaObj = {
       newProjectFields,
       language,
@@ -541,8 +550,12 @@ const ProjectContextProvider = ({ children }) => {
       sideBarTab,
       openImportPopUp,
       openExportPopUp,
+      openManageProject,
       selectedProjectMeta,
+      openPdfPopup,
+      listResourcesForPdf,
       importedBookCodes,
+      contextProjectType,
     },
     actions: {
       setDrawer,
@@ -566,8 +579,12 @@ const ProjectContextProvider = ({ children }) => {
       setSideBarTab,
       setOpenImportPopUp,
       setOpenExportPopUp,
+      setOpenManageProject,
       setSelectedProjectMeta,
+      setOpenPdfPopup,
+      setListResourcesForPdf,
       setImportedBookCodes,
+      setContextProjectType,
     },
   };
 

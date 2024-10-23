@@ -5,11 +5,13 @@
 /.pnp
 .pnp.js
 bower_components
+/.expo
 
 # next-on-netlify build output
 out_functions/
 out_publish/
 /out
+/release
 
 # ignore db files
 Autogrpha-DB/
@@ -21,6 +23,8 @@ Autogrpha-DB/
 /app/**/*.map
 /.next
 .next
+.yalc
+yalc.lock
 
 # testing
 /coverage
@@ -34,7 +38,7 @@ Autogrpha-DB/
 /build
 /dist
 .next/
-
+.todo
 # misc
 .DS_Store
 *.pem
